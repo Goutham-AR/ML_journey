@@ -9,10 +9,36 @@
 #include <vector>
 #include <exception>
 
+
 using vector_float = std::vector<float>;
+vector_float operator*(const vector_float& v1, const vector_float& v2);
+vector_float operator*(const vector_float& v, float s);
+vector_float operator*(float s, const vector_float& v);
+vector_float operator-(const vector_float& v1, const vector_float& v2);
+float v_avg(const vector_float& v);
 
 
-auto read_from_file(const std::string& filename) -> std::pair<vector_float, vector_float>
+
+std::pair<vector_float, vector_float> read_from_file(const std::string& filename);
+vector_float predict(const vector_float& X, float b, float w);
+std::pair<float, float> train(const vector_float& X, const vector_float& Y, int iterations, float lr);
+std::pair<float, float> gradient(const vector_float& X, const vector_float& Y, float w, float b);
+
+
+int main()
+{
+    auto pair = read_from_file("data.txt");
+
+    // for (int i = 0; i < pair.first.size(); i++)
+    // {
+    //     std::cout << pair.first[i] << "\t" << pair.second[i] << "\n";
+    // }
+
+    auto parameters = train(pair.first, pair.second, 20000, 0.001);
+    std::cout << parameters.first << " " << parameters.second << "\n";
+}
+
+std::pair<vector_float, vector_float> read_from_file(const std::string& filename)
 {
     vector_float keys, values;
     std::ifstream file{ filename, std::ios_base::in };
@@ -44,20 +70,7 @@ vector_float predict(const vector_float& X, float b, float w)
     return predicted_values;
 }
 
-float avg_loss(const vector_float& X, const vector_float& Y, float b, float w)
-{
-    auto predicted_values = predict(X, b, w);
 
-    float sum = 0;
-    for (int i = 0; i < Y.size(); i++)
-    {
-        auto loss = predicted_values[i] - Y[i];
-        auto squared_loss = loss * loss;
-        sum += squared_loss;
-    }
-
-    return sum / Y.size();
-}
 
 float v_avg(const vector_float& v)
 {
@@ -68,8 +81,8 @@ float v_avg(const vector_float& v)
     return sum / v.size();
 }
 
-// element wise
-vector_float vv_product(const vector_float& v1, const vector_float& v2)
+// element wise product
+vector_float operator*(const vector_float& v1, const vector_float& v2)
 {
 
     if (v1.size() == v2.size())
@@ -83,21 +96,12 @@ vector_float vv_product(const vector_float& v1, const vector_float& v2)
     }
     else
     {
-        std::exit(1);
+        throw std::exception{ "sizes of the vectors should be same for element wise product" };
     }
 }
 
-vector_float vs_product(const vector_float& v, float s)
-{
-    vector_float resultant(v.size());
-    for (int i = 0; i < v.size(); i++)
-    {
-        resultant[i] = v[i] * s;
-    }
-    return resultant;
-}
 
-vector_float vv_subtract(const vector_float& v1, const vector_float& v2)
+vector_float operator-(const vector_float& v1, const vector_float& v2)
 {
 
     if (v1.size() == v2.size())
@@ -111,20 +115,42 @@ vector_float vv_subtract(const vector_float& v1, const vector_float& v2)
     }
     else
     {
-        std::exit(1);
+        throw std::exception{ "sizes of the vectors should be same for element wise subtraction" };
     }
 }
 
-auto gradient(
-    const vector_float& X,
-    const vector_float& Y,
-    float w, float b) -> std::pair<float, float>
+vector_float operator*(const vector_float& v, float s)
+{
+    vector_float resultant(v.size());
+    for (int i = 0; i < v.size(); i++)
+    {
+        resultant[i] = v[i] * s;
+    }
+    return resultant;
+}
+
+vector_float operator*(float s, const vector_float& v)
+{
+    return v * s;
+}
+
+
+
+std::pair<float, float> gradient(const vector_float& X, const vector_float& Y, float w, float b)
 {
     auto predicted_values = predict(X, b, w);
-    auto m_gradient = 2 * v_avg(vv_product(vv_subtract(predicted_values, Y), X));
-    auto b_gradient = 2 * v_avg(vv_subtract(predicted_values, Y));
+    try
+    {
+        auto m_gradient = 2 * v_avg((predicted_values - Y) * X);
+        auto b_gradient = 2 * v_avg(predicted_values - Y);
 
-    return std::pair{ m_gradient, b_gradient };
+        return std::pair{ m_gradient, b_gradient };
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::exit(1);
+    }
 }
 
 std::pair<float, float> train(const vector_float& X, const vector_float& Y, int iterations, float lr)
@@ -137,22 +163,4 @@ std::pair<float, float> train(const vector_float& X, const vector_float& Y, int 
         b -= b_grad * lr;
     }
     return std::pair{ w, b };
-}
-
-int main()
-{
-    auto pair = read_from_file("pizza.txt");
-
-    // for (int i = 0; i < pair.first.size(); i++)
-    // {
-    //     std::cout << pair.first[i] << "\t" << pair.second[i] << "\n";
-    // }
-
-
-    auto result = train(pair.first, pair.second, 20000, 0.001);
-    std::cout << result.first << " " << result.second << "\n";
-
-
-
-
 }
