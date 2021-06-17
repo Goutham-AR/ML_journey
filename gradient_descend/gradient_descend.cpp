@@ -1,3 +1,6 @@
+// TODO: use classes to refactor a lot operations on vectors
+
+
 #include <iostream>
 #include <fstream>
 #include <string>
