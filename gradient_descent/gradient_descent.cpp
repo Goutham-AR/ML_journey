@@ -10,19 +10,19 @@
 #include <exception>
 
 
-using vector_float = std::vector<float>;
-vector_float operator*(const vector_float& v1, const vector_float& v2);
-vector_float operator*(const vector_float& v, float s);
-vector_float operator*(float s, const vector_float& v);
-vector_float operator-(const vector_float& v1, const vector_float& v2);
-float v_avg(const vector_float& v);
+using vecf = std::vector<float>;
+vecf operator*(const vecf& v1, const vecf& v2);
+vecf operator*(const vecf& v, float s);
+vecf operator*(float s, const vecf& v);
+vecf operator-(const vecf& v1, const vecf& v2);
+float v_avg(const vecf& v);
 
 
 
-std::pair<vector_float, vector_float> read_from_file(const std::string& filename);
-vector_float predict(const vector_float& X, float b, float w);
-std::pair<float, float> train(const vector_float& X, const vector_float& Y, int iterations, float lr);
-std::pair<float, float> gradient(const vector_float& X, const vector_float& Y, float w, float b);
+std::pair<vecf, vecf> read_from_file(const std::string& filename);
+vecf predict(const vecf& X, float b, float w);
+std::pair<float, float> train(const vecf& X, const vecf& Y, int iterations, float lr);
+std::pair<float, float> gradient(const vecf& X, const vecf& Y, float w, float b);
 
 
 int main()
@@ -38,9 +38,9 @@ int main()
     std::cout << parameters.first << " " << parameters.second << "\n";
 }
 
-std::pair<vector_float, vector_float> read_from_file(const std::string& filename)
+std::pair<vecf, vecf> read_from_file(const std::string& filename)
 {
-    vector_float keys, values;
+    vecf keys, values;
     std::ifstream file{ filename, std::ios_base::in };
     std::uint32_t count = 1;
     while (file)
@@ -59,9 +59,9 @@ std::pair<vector_float, vector_float> read_from_file(const std::string& filename
     return std::pair{ keys, values };
 }
 
-vector_float predict(const vector_float& X, float b, float w)
+vecf predict(const vecf& X, float b, float w)
 {
-    vector_float predicted_values(X.size());
+    vecf predicted_values(X.size());
     for (int i = 0; i < X.size(); i++)
     {
         predicted_values[i] = X[i] * w + b;
@@ -72,7 +72,7 @@ vector_float predict(const vector_float& X, float b, float w)
 
 
 
-float v_avg(const vector_float& v)
+float v_avg(const vecf& v)
 {
     auto sum = 0.0f;
     for (int i = 0; i < v.size(); i++)
@@ -82,12 +82,12 @@ float v_avg(const vector_float& v)
 }
 
 // element wise product
-vector_float operator*(const vector_float& v1, const vector_float& v2)
+vecf operator*(const vecf& v1, const vecf& v2)
 {
 
     if (v1.size() == v2.size())
     {
-        vector_float product_vector(v1.size());
+        vecf product_vector(v1.size());
         for (int i = 0; i < v1.size(); i++)
         {
             product_vector[i] = v1[i] * v2[i];
@@ -101,12 +101,12 @@ vector_float operator*(const vector_float& v1, const vector_float& v2)
 }
 
 
-vector_float operator-(const vector_float& v1, const vector_float& v2)
+vecf operator-(const vecf& v1, const vecf& v2)
 {
 
     if (v1.size() == v2.size())
     {
-        vector_float resultant(v1.size());
+        vecf resultant(v1.size());
         for (int i = 0; i < v1.size(); i++)
         {
             resultant[i] = v1[i] - v2[i];
@@ -119,9 +119,9 @@ vector_float operator-(const vector_float& v1, const vector_float& v2)
     }
 }
 
-vector_float operator*(const vector_float& v, float s)
+vecf operator*(const vecf& v, float s)
 {
-    vector_float resultant(v.size());
+    vecf resultant(v.size());
     for (int i = 0; i < v.size(); i++)
     {
         resultant[i] = v[i] * s;
@@ -129,14 +129,14 @@ vector_float operator*(const vector_float& v, float s)
     return resultant;
 }
 
-vector_float operator*(float s, const vector_float& v)
+vecf operator*(float s, const vecf& v)
 {
     return v * s;
 }
 
 
 
-std::pair<float, float> gradient(const vector_float& X, const vector_float& Y, float w, float b)
+std::pair<float, float> gradient(const vecf& X, const vecf& Y, float w, float b)
 {
     auto predicted_values = predict(X, b, w);
     try
@@ -153,7 +153,7 @@ std::pair<float, float> gradient(const vector_float& X, const vector_float& Y, f
     }
 }
 
-std::pair<float, float> train(const vector_float& X, const vector_float& Y, int iterations, float lr)
+std::pair<float, float> train(const vecf& X, const vecf& Y, int iterations, float lr)
 {
     float w = 0, b = 0;
     for (int i = 0; i < iterations; i++)
