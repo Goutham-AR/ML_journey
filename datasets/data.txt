@@ -1,4 +1,4 @@
-Reservations  Pizzas
+X	           Y
 13            33
 2             16
 14            32

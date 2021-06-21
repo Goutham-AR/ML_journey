@@ -7,7 +7,6 @@
 #include <charconv>
 #include <utility>
 #include <vector>
-#include <exception>
 
 
 using vecf = std::vector<float>;
@@ -27,7 +26,7 @@ std::pair<float, float> gradient(const vecf& X, const vecf& Y, float w, float b)
 
 int main()
 {
-    auto pair = read_from_file("data.txt");
+    auto pair = read_from_file("../datasets/data.txt");
 
     // for (int i = 0; i < pair.first.size(); i++)
     // {
@@ -96,7 +95,7 @@ vecf operator*(const vecf& v1, const vecf& v2)
     }
     else
     {
-        throw std::exception{ "sizes of the vectors should be same for element wise product" };
+        std::exit(1);
     }
 }
 
@@ -115,7 +114,7 @@ vecf operator-(const vecf& v1, const vecf& v2)
     }
     else
     {
-        throw std::exception{ "sizes of the vectors should be same for element wise subtraction" };
+        std::exit(1);
     }
 }
 
@@ -139,18 +138,12 @@ vecf operator*(float s, const vecf& v)
 std::pair<float, float> gradient(const vecf& X, const vecf& Y, float w, float b)
 {
     auto predicted_values = predict(X, b, w);
-    try
-    {
-        auto m_gradient = 2 * v_avg((predicted_values - Y) * X);
-        auto b_gradient = 2 * v_avg(predicted_values - Y);
+    auto m_gradient = 2 * v_avg((predicted_values - Y) * X);
+    auto b_gradient = 2 * v_avg(predicted_values - Y);
 
-        return std::pair{ m_gradient, b_gradient };
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        std::exit(1);
-    }
+    return std::pair{ m_gradient, b_gradient };
+
+
 }
 
 std::pair<float, float> train(const vecf& X, const vecf& Y, int iterations, float lr)
